@@ -1,0 +1,25 @@
+{
+  "name": "webcrawler",
+  "version": "1.0.0",
+  "description": "The webcrawler for my CS554 final project",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwexen/CS554-Final.git"
+  },
+  "author": "Matt Colozzo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dwexen/CS554-Final/issues"
+  },
+  "homepage": "https://github.com/dwexen/CS554-Final#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "request": "^2.81.0",
+    "url-parse": "^1.1.9"
+  }
+}
