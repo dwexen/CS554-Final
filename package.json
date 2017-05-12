@@ -19,7 +19,9 @@
   "homepage": "https://github.com/dwexen/CS554-Final#readme",
   "dependencies": {
     "cheerio": "^0.22.0",
+    "mongo": "^0.1.0",
     "request": "^2.81.0",
-    "url-parse": "^1.1.9"
+    "url-parse": "^1.1.9",
+    "uuid": "^3.0.1"
   }
 }

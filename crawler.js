@@ -1,7 +1,8 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var URL = require('url-parse');
-
+const data = require("./data");
+const pages = data.pages;
 
 var START_URL; // = "http://www.arstechnica.com";
 var SEARCH_WORDS;// = ["stemming", "technology", "new", "computer", "programming", "science", "politics", "trump"];
@@ -14,9 +15,15 @@ var pagesToVisit = [];
 //var baseUrl = url.protocol + "//" + url.hostname;
 var url;
 var baseUrl;
+var relRequirement = .60;
+var relevantPages = [];
 let exportMethods = {
-    startCrawl(start_url, search_words, max_pages)
+    startCrawl(start_url, search_words, max_pages, relevance)
     {
+        if(relevance)
+        {
+            relRequirement = relevance;
+        }
         SEARCH_WORDS = search_words;
         START_URL = start_url;
         MAX_PAGES_TO_VISIT = max_pages;
@@ -38,6 +45,7 @@ function crawl() {
     crawl();
   } else {
     // New page we haven't visited
+    console.log(nextPage);
     visitPage(nextPage, crawl);
   }
 }
@@ -69,24 +77,54 @@ function visitPage(url, callback) {
      // Parse the document body
      var $ = cheerio.load(body);
      var isWordFound;
+     var matches = 0;
+     var titleMatches = 0;
      for(var i = 0; i<SEARCH_WORDS.length; i++) 
      {
         isWordFound = searchForWordInBody($, SEARCH_WORDS[i]);
         if(isWordFound) 
         {
-            console.log('Word ' + SEARCH_WORDS[i] + ' found at page ' + url);
+            matches++;
+            console.log('Word ' + SEARCH_WORDS[i] + ' found in body of ' + url);
         } 
      }
-       collectInternalLinks($);
-       // In this short program, our callback is just calling crawl()
-       callback();
+     for(var j = 0; j < SEARCH_WORDS.length; j++)
+     {
+        isWordFound = searchForWordInTitle($, SEARCH_WORDS[j]);
+        if(isWordFound)
+        {
+            titleMatches++;
+            console.log("Word: " + SEARCH_WORDS[j] + "Found in title of " + url);
+        }
+     }
+     var relevancy = relevance(SEARCH_WORDS, matches);
+     console.log("PAGE RELEVANCE: " + relevancy);
+     if(relevancy >= relRequirement)
+     {
+        relevantPages.push(url);
+        pages.addPage(url, relevancy);
+     }
+     else
+     {
+         //numPagesVisited--;
+     }
+     console.log("RELEVANT PAGES: " + relevantPages);
+     collectInternalLinks($);
+     callback();
      
   });
 }
 
 function searchForWordInBody($, word) {
   var bodyText = $('html > body').text().toLowerCase();
+  
   return(bodyText.indexOf(word.toLowerCase()) !== -1);
+}
+
+function searchForWordInTitle($, word) {
+    var titleText = $("title").text().toLowerCase();
+    //console.log("TITLE OF PAGE: " + $("title").text());
+    return(titleText.indexOf(word.toLowerCase()) !== -1);
 }
 
 function collectInternalLinks($) {
@@ -95,6 +133,11 @@ function collectInternalLinks($) {
     relativeLinks.each(function() {
         pagesToVisit.push(baseUrl + $(this).attr('href'));
     });
+}
+
+function relevance(words, matches)
+{
+    return  matches / words.length;
 }
 
 
