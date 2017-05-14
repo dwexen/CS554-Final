@@ -48,11 +48,11 @@ var PagesContainer = React.createClass({
 "use strict";
 
 var Page = function Page(_ref) {
-  var url = _ref.url,
-      relevancy = _ref.relevancy;
-    //   topics = _ref.topics,
-    //   title = _ref.title,
-    //   text = _ref.text
+  var title = _ref.title,
+      url = _ref.url,
+      relevancy = _ref.relevancy,
+      description = _ref.description;
+    //   topics = _ref.topics
 
 //   var viewTopics = topics.map(function (topic) {
 //     return React.createElement(
@@ -65,11 +65,6 @@ var Page = function Page(_ref) {
   return React.createElement(
     "div",
     { className: "panel panel-default" },
-    // React.createElement(
-    //   "div",
-    //   { className: "panel-heading" },
-    //   title
-    // ),
     React.createElement(
       "div",
       { className: "panel-heading" },
@@ -77,35 +72,35 @@ var Page = function Page(_ref) {
     ),
     React.createElement(
       "div",
-      { className: "panel-heading" },
-      relevancy
+      { className: "panel-body" },
+      React.createElement(
+        "div",
+        null,
+        React.createElement(
+          "h1",
+          null,
+          title
+        ),
+        React.createElement(
+          "p",
+          null,
+          description
+        )
+        // React.createElement(
+        //   "div",
+        //   { className: "row" },
+        //   React.createElement(
+        //     "div",
+        //     { className: "col-md-8" },
+        //     React.createElement(
+        //       "ol",
+        //       null,
+        //       viewTopics
+        //     )
+        //   )
+        // )
+      )
     )
-    // React.createElement(
-    //   "div",
-    //   { className: "panel-body" },
-    //   React.createElement(
-    //     "div",
-    //     null,
-    //     React.createElement(
-    //       "p",
-    //       null,
-    //       text
-    //     ),
-    //     React.createElement(
-    //       "div",
-    //       { className: "row" },
-    //       React.createElement(
-    //         "div",
-    //         { className: "col-md-8" },
-    //         React.createElement(
-    //           "ol",
-    //           null,
-    //           viewTopics
-    //         )
-    //       )
-    //     )
-    //   )
-    // )
   );
 };
 'use strict';
@@ -120,12 +115,12 @@ var PagesList = function PagesList(_ref) {
             return React.createElement(Page, {
                 key: page.id,
                 id: page.id,
+                title: page.title,
                 url: page.url,
+                description: page.description,
                 relevancy: page.relevancy
              });
-                // topics: page.topics,
-                // title: page.title,
-                // text: page.text,
+                // topics: page.topics
         })
     );
 };
