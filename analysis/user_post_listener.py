@@ -21,6 +21,7 @@ class UserPostListener(RedisListener):
     self._users = self._mongo_client["cs554-final"]["users"]
     self._analyzer = TextAnalyzer(training_data, n_topics = 3,
                                   verbosity=verbosity)
+    self._verbosity = verbosity
 
   def on_message(self, message):
     analysis = self._analyzer(message["post"])
@@ -31,16 +32,18 @@ class UserPostListener(RedisListener):
       return
 
     result = self._users.find_one_and_update(
-      { "_id": message["user"] },
-      { "$update": { "interests": { topic: { "$push": {
+      { "_id": ObjectId(message["user"]) },
+      { "$push": {
+        "interests": { "$each": [{
+          "name": topic,
           "pos": analysis.pos,
           "neg": analysis.neg,
           "neu": analysis.neu
-        }
-      } for topic in analysis.topics } } },
+        } for topic in analysis.topics]}}
+      },
       return_document = ReturnDocument.AFTER
     )
-    print(result)
-    print("User:", message["user"])
-    print("Post:", message["post"])
+    if self._verbosity >= 1:
+      print("User:", message["user"])
+      print("Post:", message["post"])
 

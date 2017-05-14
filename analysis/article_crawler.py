@@ -16,6 +16,7 @@ class ArticleCrawler(WebCrawler):
     self._pages = self._mongo_client["cs554-final"]["pages"]
     self._analyzer = TextAnalyzer(fetch_20newsgroups(subset="train").data,
                                   n_topics = 30, verbosity=0)
+    self._verbosity = verbosity
 
   def on_content(self, url, content, title, description):
     analysis = self._analyzer(content)
@@ -40,7 +41,8 @@ class ArticleCrawler(WebCrawler):
       upsert = True,
       return_document = ReturnDocument.AFTER
     )
-    print("Url:", url)
-    print(analysis)
-    print()
+    if self._verbosity >= 1:
+      print("Url:", url)
+      print(analysis)
+      print()
 

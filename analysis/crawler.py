@@ -88,20 +88,26 @@ class WebCrawler:
     [ style.extract() for style in soup.findAll("style") ]
 
     # Get title
-    title_meta = soup.find("meta", attrs={"name": "title"}) or \
-                 soup.find("meta", property="og:title")
-    if title_meta is not None:
-      title = title_meta["content"]
-    else:
-      title = soup.find("title").getText()
+    try:
+      title_meta = soup.find("meta", attrs={"name": "title"}) or \
+                  soup.find("meta", property="og:title")
+      if title_meta is not None:
+        title = title_meta["content"]
+      else:
+        title = soup.find("title").getText()
+    except:
+      # No title, no value
+      return
+
 
     # Get description
-    desc_meta = soup.find("meta", attrs={"name": "description"}) or \
-                soup.find("meta", property="og:description")
-    if desc_meta is not None:
+    try:
+      desc_meta = soup.find("meta", attrs={"name": "description"}) or \
+                  soup.find("meta", property="og:description")
       desc = desc_meta["content"]
-    else:
+    except:
       desc = "[ Could not find description for this article ]"
+
 
     # Only call the action on the page's article content...if there is no
     # <article> tag, well too bad
