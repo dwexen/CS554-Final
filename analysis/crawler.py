@@ -83,9 +83,25 @@ class WebCrawler:
     if "Content-Type" not in request_page.headers or \
        "text/html" not in request_page.headers["Content-Type"]:
       return
-    soup = BeautifulSoup(request_page.content, "html.parser")
+    soup = BeautifulSoup(request_page.content, "html5lib")
     [ script.extract() for script in soup.findAll("script") ]
     [ style.extract() for style in soup.findAll("style") ]
+
+    # Get title
+    title_meta = soup.find("meta", attrs={"name": "title"}) or \
+                 soup.find("meta", property="og:title")
+    if title_meta is not None:
+      title = title_meta["content"]
+    else:
+      title = soup.find("title").getText()
+
+    # Get description
+    desc_meta = soup.find("meta", attrs={"name": "description"}) or \
+                soup.find("meta", property="og:description")
+    if desc_meta is not None:
+      desc = desc_meta["content"]
+    else:
+      desc = "[ Could not find description for this article ]"
 
     # Only call the action on the page's article content...if there is no
     # <article> tag, well too bad
@@ -93,7 +109,8 @@ class WebCrawler:
     if article is not None:
       content = "\n".join([ p.getText() for p in article.findAll("p") ]).lower()
       if content.replace("\n", "") != "":
-        self._action(url = page, content = content)
+        self._action(url = page, content = content, title = title,
+                     description = desc)
 
     # Extract anchor tags
     links = list(map(lambda anchor: urlparse(anchor.attrs["href"]
