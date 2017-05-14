@@ -1,0 +1,7 @@
+
+# Swap files
+.*.sw*
+
+# Caching
+__pycache__
+
