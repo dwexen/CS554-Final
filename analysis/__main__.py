@@ -1,51 +1,50 @@
 
-from sklearn.datasets import fetch_20newsgroups
-from crawler import WebCrawler
-from text_analyzer import TextAnalyzer
-from pymongo import MongoClient, ReturnDocument
-from datetime import datetime
+from threading import Thread
+import argparse, sys
 
-client = MongoClient("localhost", 27017)
-db = client["cs554-final"]
+from article_crawler import ArticleCrawler
+from user_post_listener import UserPostListener
 
-pages = db["pages"]
+parser = argparse.ArgumentParser(description="Start the text analyzer")
+parser.add_argument("-c", "--crawler",
+                    action="store_true",
+                    help="Enable the web crawler")
+parser.add_argument("-p", "--pubsub",
+                    action="store_true",
+                    help="Enable the redis pub-sub listener for user posts")
+parser.add_argument("-v", "--verbosity",
+                    action="count",
+                    default=0,
+                    help="Increase output verbosity")
+parser.add_argument("--init-url",
+                    type=str,
+                    default="http://news.ycombinator.com",
+                    help="Url to initially point the web crawler at")
 
-def analyze_and_print(url, content):
-  print("Url:", url)
-  print(article_analyzer(content))
-  print()
+args = parser.parse_args(sys.argv[1:])
 
-def analyze_and_store(url, content):
-  analysis = article_analyzer(content)
+if not args.crawler and not args.pubsub:
+  print("Must use either --crawler or --pubsub")
+  print("Use -h to see options")
+  exit()
 
-  # If the analysis comes back with no topics, we can safely discard this
-  # article...it will never be the result of a query anyhow
-  if len(analysis.topics) <= 0:
-    return
+threads = []
 
-  result = pages.find_one_and_replace(
-    { "url": url },
-    { "url": url,
-      "polarity": {
-        "pos": analysis.pos,
-        "neg": analysis.neg,
-        "neu": analysis.neu
-      },
-      "topics": analysis.topics,
-      "date_accessed": datetime.utcnow() },
-    upsert = True,
-    return_document = ReturnDocument.AFTER
-  )
-  print("Url:", url)
-  print(analysis)
-  print()
+if args.crawler:
+  print("Starting web crawler")
+  crawler = ArticleCrawler(args.init_url, verbosity=args.verbosity)
+  crawler_thread = Thread(target=lambda: crawler.start())
+  crawler_thread.daemon = True
+  crawler_thread.start()
+  threads.append(crawler_thread)
 
-wc = WebCrawler(analyze_and_store, "http://arstechnica.com", verbosity=0)
+if args.pubsub:
+  print("Starting user post listener")
+  user_post_listener = UserPostListener(verbosity=args.verbosity)
+  user_thread = Thread(target=lambda: user_post_listener.start())
+  user_thread.daemon = True
+  user_thread.start()
+  threads.append(user_thread)
 
-print("Initializing text analyzer")
-article_analyzer = TextAnalyzer(fetch_20newsgroups(subset="train").data,
-                                n_topics = 30, verbosity=0)
-
-print("Starting web crawler")
-wc.start()
-
+for t in threads:
+  t.join()
