@@ -3,6 +3,7 @@ module.exports = function(app, passport) {
     var graph = require('fbgraph');
     var Twitter = require('twitter');
     var configAuth = require('../config/auth');
+    var OAuth2 = require('OAuth').OAuth2;
 // normal routes ===============================================================
 
     // show the home page (will also have our login links)
@@ -132,16 +133,26 @@ module.exports = function(app, passport) {
             .get("me/friends?limit=50", function(err, res) {
                 console.log(res); // { id: '4', name: 'Mark Zuckerberg'... }
             });*/
+            var oauth2 = new OAuth2(configAuth.twitterAuth.consumerKey, configAuth.twitterAuth.consumerSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
+            var bearer_token;
+            oauth2.getOAuthAccessToken('', {
+                'grant_type': 'client_credentials'
+            }, function (e, access_token) {
+                //console.log(access_token); //string that we can use to authenticate request
+                bearer_token = access_token;
+            });
             var Twitter = require('twitter');
- 
+            console.log(bearer_token);
             var client = new Twitter({
             consumer_key: configAuth.twitterAuth.consumerKey,
             consumer_secret: configAuth.twitterAuth.consumerSecret,
+            bearer_token: "AAAAAAAAAAAAAAAAAAAAAPq40gAAAAAA8%2BWzg0FOhSNVRuR%2F%2FP4PMplbAf4%3D7QFKd7nUDL8aPKESoAXldb1VA6oaFMjMVOSG17dQ3buFAZKeaE"
+            /*
             access_token_key: '381105033-hvPqQNAs3BAKSNB3QDzcHxzsq9FQgGlnOEhO3JJI',
-            access_token_secret: 'yTDI8XzoOnU4i8WCKDeIT4NUKs3fXIZjwIfGgCTb2qCZm'
+            access_token_secret: 'yTDI8XzoOnU4i8WCKDeIT4NUKs3fXIZjwIfGgCTb2qCZm'*/
             });
             
-            var params = {screen_name: 'RobertdeLyes'};
+            var params = {screen_name: req.user.twitter.username};
             client.get('statuses/user_timeline', params, function(error, tweets, response) {
             if (!error) {
                 console.log(tweets);
