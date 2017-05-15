@@ -11,7 +11,15 @@ var AppComponent = function AppComponent() {
         },
         React.createElement(
             "div", {
-                className: "col-sm-12"
+                className: "col-sm-3"
+            },
+            React.createElement(SettingsContainer, {
+                url: "/topics"
+            })
+        ),
+        React.createElement(
+            "div", {
+                className: "col-sm-9"
             },
             React.createElement(PagesContainer, {
                 url: "/pages"
@@ -24,16 +32,52 @@ var AppComponent = function AppComponent() {
 
 var SettingsContainer = React.createClass({
     displayName: "SettingsContainer",
+
+    getInitialState: function getInitialState() {
+        return {
+            topics:[]
+        };
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            cache: false,
+            success: function success(topicsList) {
+                _this.setState({
+                    topics: topicsList
+                });
+            },
+            error: function error(xhr, status, err) {
+                console.error(_this.props.url, status, err.toString());
+            }
+        });
+    },
+
     render: function render() {
         return React.createElement(
             "div",
-            { className: "filter-section" },
+            null,
             React.createElement(
-                "h1",
+                "div",
                 null,
-                "filter",
-                React.createElement("br", null),
-                "by"
+                "Filter Results",
+                React.createElement(
+                    "form",
+                    null,
+                    React.createElement(
+                        "label",
+                        null,
+                        React.createElement(
+                            "input",
+                            { type:"checkbox", defaultChecked:true },
+                            null
+                        ), "KMS"
+                    )
+                )
             )
         );
     }
@@ -46,7 +90,9 @@ var PagesContainer = React.createClass({
 
     getInitialState: function getInitialState() {
         return {
-            pages: []
+            pages: [],
+            field: "relevancy",
+            direction: 1
         };
     },
 
@@ -59,8 +105,8 @@ var PagesContainer = React.createClass({
             cache: false,
             success: function success(pagesList) {
                 //pre-sort results
-                const field = "relevancy";
-                var direction = 1;
+                const field = _this.state.field;
+                var direction = _this.state.direction;
                 pagesList.sort(function(a, b){return b[field]-a[field]});
                 console.log("sorted list", pagesList);
                 _this.setState({
@@ -78,19 +124,33 @@ var PagesContainer = React.createClass({
             "row",
             null,
             React.createElement(
-                "div",
-                { className: "col-sm-3" },
-                React.createElement(SettingsContainer, {})
-            ),
-            React.createElement(
                 "div", {
-                    className: "col-sm-9 page"
+                    className: "col-sm-12 page"
                 },
                 React.createElement(PagesList, {
                     pages: this.state.pages
                 })
             )
         )
+    },
+
+    sortPages: function sortPages(field, direction) {
+        var sortedPagesList = this.state.pages.sort(function(a,b){ 
+            if (direction == 1)
+                return b[field] - a[field];
+            else
+                return a[field] - b[field];
+        });
+
+        this.setState({
+            field: field,
+            direction: direction,
+            pages: sortedPagesList
+        });
+    },
+
+    componentWillReceiveProps: function (nextProps) {
+        this.sortPages(nextProps.field, nextProps.direction);
     }
 });
 "use strict";
@@ -129,8 +189,8 @@ var Page = function Page(_ref) {
                 "div",
                 null,
                 React.createElement(
-                    "h1",
-                    null,
+                    "p",
+                    { className: "title" },
                     title
                 ),
                 React.createElement(

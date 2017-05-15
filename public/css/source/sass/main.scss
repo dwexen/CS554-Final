@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+
 $body-background: white;
 $primary-color: #333;
 
@@ -11,8 +13,13 @@ body, html {
     background: $body-background;
     color: $primary-color;
 
-    // font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+    font-family: "Varela Round";
     // font-size: $primary-font-size;
+}
+
+.title {
+    font-size: 30px;
+    margin: 10px 0px;
 }
 
 .tags {
