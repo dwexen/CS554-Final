@@ -1,4 +1,7 @@
 "use strict";
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; };
 
 var AppComponent = function AppComponent() {
 
@@ -21,29 +24,16 @@ var AppComponent = function AppComponent() {
 
 var SettingsContainer = React.createClass({
     displayName: "SettingsContainer",
-    sortPages: function sortPages(field) {
-        this.props.sortPagesBy(this.props.pagesState, field, this.props.pages, this.props.direction);
-    },
     render: function render() {
         return React.createElement(
             "div",
-            { className: "sort-section" },
+            { className: "filter-section" },
             React.createElement(
                 "h1",
                 null,
-                "Sort",
+                "filter",
                 React.createElement("br", null),
                 "by"
-            ),
-            React.createElement(
-                "div",
-                { className: "pill", onClick: this.sortPages.bind(this, 'relevance') },
-                "Relevance"
-            ),
-            React.createElement(
-                "div",
-                { className: "pill", onClick: this.sortPages.bind(this, 'title') },
-                "Title"
             )
         );
     }
@@ -68,6 +58,11 @@ var PagesContainer = React.createClass({
             dataType: 'json',
             cache: false,
             success: function success(pagesList) {
+                //pre-sort results
+                const field = "relevancy";
+                var direction = 1;
+                pagesList.sort(function(a, b){return b[field]-a[field]});
+                console.log("sorted list", pagesList);
                 _this.setState({
                     pages: pagesList
                 });
@@ -78,19 +73,6 @@ var PagesContainer = React.createClass({
         });
     },
 
-    sortPagesBy: function (listState, field, pages, direction) {
-        // Sorting ...
-        pages.sort(function (a, b) {
-            if (a[field] > b[field])
-                return -direction;
-            if (a[field] < b[field])
-                return direction;
-            return 0;
-        });
-        // Change state
-        listState.setState({ 'pages': pages, 'direction': -direction });
-    },
-
     render: function render() {
         return React.createElement(
             "row",
@@ -98,9 +80,7 @@ var PagesContainer = React.createClass({
             React.createElement(
                 "div",
                 { className: "col-sm-3" },
-                React.createElement(SettingsContainer, {
-                    pagesState: this, direction: this.state.direction, pages: this.state.pages, sortPagesBy: this.sortPagesBy
-                })
+                React.createElement(SettingsContainer, {})
             ),
             React.createElement(
                 "div", {
