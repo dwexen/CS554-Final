@@ -1,5 +1,8 @@
 module.exports = function(app, passport) {
-
+    var User = require('../app/models/user');
+    var graph = require('fbgraph');
+    var Twitter = require('twitter');
+    var configAuth = require('../config/auth');
 // normal routes ===============================================================
 
     // show the home page (will also have our login links)
@@ -105,7 +108,7 @@ module.exports = function(app, passport) {
     // facebook -------------------------------
 
         // send to facebook to do the authentication
-        app.get('/connect/facebook', passport.authorize('facebook', { scope : 'email' }));
+        app.get('/connect/facebook', passport.authorize('facebook', {authType: 'rerequest', scope : ['email', 'user_friends', 'public_profile'] }));
 
         // handle the callback after facebook has authorized the user
         app.get('/connect/facebook/callback',
@@ -113,6 +116,43 @@ module.exports = function(app, passport) {
                 successRedirect : '/profile',
                 failureRedirect : '/'
             }));
+        app.post('/analyze', function(req, res){
+            console.log(req.user);
+            /*
+            var access_token = req.user.facebook.token;
+            graph.setAccessToken(access_token);
+            var options = {
+                timeout:  3000
+                , pool:     { maxSockets:  Infinity }
+                , headers:  { connection:  "keep-alive" }
+                };
+
+            graph
+            .setOptions(options)
+            .get("me/friends?limit=50", function(err, res) {
+                console.log(res); // { id: '4', name: 'Mark Zuckerberg'... }
+            });*/
+            var Twitter = require('twitter');
+ 
+            var client = new Twitter({
+            consumer_key: configAuth.twitterAuth.consumerKey,
+            consumer_secret: configAuth.twitterAuth.consumerSecret,
+            access_token_key: '381105033-hvPqQNAs3BAKSNB3QDzcHxzsq9FQgGlnOEhO3JJI',
+            access_token_secret: 'yTDI8XzoOnU4i8WCKDeIT4NUKs3fXIZjwIfGgCTb2qCZm'
+            });
+            
+            var params = {screen_name: 'RobertdeLyes'};
+            client.get('statuses/user_timeline', params, function(error, tweets, response) {
+            if (!error) {
+                console.log(tweets);
+            }
+            else
+            {
+                console.log(error);
+            }
+            });
+            res.redirect('/profile');
+        });
 
     // twitter --------------------------------
 

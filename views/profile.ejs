@@ -52,7 +52,10 @@
                         <strong>name</strong>: <%= user.facebook.name %><br>
                     </p>
 
-                    <a href="/unlink/facebook" class="btn btn-primary">Unlink</a>
+                    <a href="/unlink/facebook" class="btn btn-primary">Unlink</a> 
+                    <form action="/analyze" method="post">
+                        <button type="submit"  class="btn btn-warning btn-lg">Analyze</button>
+                    </form>
                 <% } else { %>
                     <a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
                 <% } %>
@@ -108,5 +111,6 @@
     
 
 </div>
+
 </body>
 </html>
