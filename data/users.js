@@ -12,13 +12,13 @@ let exportMethods = {
     getUserById(id) {
         return user().then((userCollection) => {
 			return userCollection.findOne({_id: id}).then((user) => {
-				if(!user) return new Error('User: ' + id + 'not found');
+				if(!user) return null;
 				return user;
 			});
 		});
     },
     getUserByName(username) {
-        console.log(username);
+        console.log("GETTING: " + username);
         return user().then((userCollection) => {
             return userCollection.findOne({username: username}).then((user) => {
                 if(!user) {

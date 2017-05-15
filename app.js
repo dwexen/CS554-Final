@@ -1,3 +1,71 @@
+// server.js
+
+// set up ======================================================================
+// get all the tools we need
+var express  = require('express');
+var app      = express();
+var port     = process.env.PORT || 8080;
+var mongoose = require('mongoose');
+var passport = require('passport');
+var flash    = require('connect-flash');
+
+var morgan       = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser   = require('body-parser');
+var session      = require('express-session');
+
+var configDB = require('./config/database.js');
+
+// configuration ===============================================================
+mongoose.connect('mongodb://localhost/cs554-final'); // connect to our database
+
+require('./config/passport')(passport); // pass passport for configuration
+
+// set up our express application
+app.use(morgan('dev')); // log every request to the console
+app.use(cookieParser()); // read cookies (needed for auth)
+app.use(bodyParser.json()); // get information from html forms
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.set('view engine', 'ejs'); // set up ejs for templating
+
+// required for passport
+app.use(session({
+    secret: 'ilovescotchscotchyscotchscotch', // session secret
+    resave: true,
+    saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
+
+// routes ======================================================================
+require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
+
+// launch ======================================================================
+app.listen(port);
+console.log('The magic happens on port ' + port);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 const crawler = require("./crawler");
 const data = require("./data");
@@ -5,7 +73,7 @@ const pages = data.pages;
 const users = data.users;
 var testWords = ["stemming", "technology", "new", "computer", "programming", "science", "politics", "trump"];
 //crawler.startCrawl("http://www.arstechnica.com", testWords, 10);
-//crawler.startCrawl("http://www.arstechnica.com", testWords, 10, .60);*/
+//crawler.startCrawl("http://www.arstechnica.com", testWords, 10, .60);
 
 // Template taken from https://github.com/passport/express-4.x-local-example and modified for my use
 var express = require('express');
@@ -37,13 +105,13 @@ const handlebarsInstance = exphbs.create({
 // (`username` and `password`) submitted by the user.  The function must verify
 // that the password is correct and then invoke `cb` with a user object, which
 // will be set at `req.user` in route handlers after authentication.
-passport.use(new Strategy(
+passport.use('local-login', new Strategy(
   function(username, password, cb) {
-    db.users.getUserByName(username, function(err, user) {
+    db.users.getUserByName(username).then( function(err, user) {
       if (err) { return cb(err); }
       if (!user) { return cb(null, false); }
-
-      bcrypt.compare(password, user.hashedPassword, (err, res) => {
+      console.log("ABOUT TO COMPARE PASSWORDS");
+      bcrypt.compare(password, user.password, (err, res) => {
         if (res != true) {
           return cb(null, false);
         }
@@ -61,12 +129,15 @@ passport.use(new Strategy(
 // serializing, and querying the user record by ID from the database when
 // deserializing.
 passport.serializeUser(function(user, cb) {
+  console.log("error here inside serialize?");
+  console.log(user._id);
   cb(null, user._id);
 });
 
 passport.deserializeUser(function(id, cb) {
-  db.users.getUserById(id, function (err, user) {
+  db.users.getUserById(id).then( function (err, user) {
     if (err) { return cb(err); }
+    console.log("Error here?");
     cb(null, user);
   });
 });
@@ -107,6 +178,7 @@ passport.use('local-signup', new Strategy({
                     return done(null, user);
                 });
                 console.log("Here as well?");
+                //return;
               
             }
 
@@ -149,16 +221,21 @@ app.get('/',
 app.get('/signup', function(req, res) {
     res.render('login/signup', {error: req.flash('error'), title: "signup"});
 })
-app.post('/signup', passport.authenticate('local-signup', {successRedirect: '/signup', failureRedirect: '/signup', failureFlash: true}));
+app.post('/signup', 
+passport.authenticate('local-signup', {failureRedirect: '/signup', failureFlash: true}),
+function(req, res) {
+    //console.log("Error is: " + res.error);
+    res.redirect('/private');
+});
 app.get('/login',
   function(req, res){
     res.render('login/login', {error: req.flash('error'), title: "Login"});
   });
   
 app.post('/login', 
-  passport.authenticate('local', { failureRedirect: '/', failureFlash: 'Invalid username or password.' }),
+  passport.authenticate('local-login', { failureRedirect: '/', failureFlash: 'Invalid username or password.' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/private');
   });
   
 app.get('/logout',
@@ -176,4 +253,4 @@ app.get('/private',
 app.listen(3000, () => {
     console.log("We've now got a server!");
     console.log("Your routes will be running on http://localhost:3000");
-});
+});*/
