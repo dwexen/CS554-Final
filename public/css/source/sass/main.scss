@@ -1,4 +1,4 @@
-$body-background: #FEFEFE;
+$body-background: white;
 $primary-color: #333;
 
 $primary-font-size: 20pt;
@@ -11,6 +11,23 @@ body, html {
     background: $body-background;
     color: $primary-color;
 
-    font-family: Georgia, Cambria, "Times New Roman", Times, serif;
-    font-size: $primary-font-size;
+    // font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+    // font-size: $primary-font-size;
+}
+
+.tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: #a9a9a9;
+}
+
+.tag {
+    display: inline;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: #a9a9a9;
+    border-style: solid;
+    padding: 3px 5px;
+    margin: 0px 3px;
 }
