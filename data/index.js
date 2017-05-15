@@ -1,9 +1,11 @@
-const taskRoutes = require("./pages");
-
+const pageRoutes = require("./pages");
+const userRoute = require("./users");
 let constructorMethod = (app) => {
-    app.use("/pages", taskRoutes);
+    app.use("/pages", pageRoutes);
+    app.use("/users", userRoute);
 };
 
 module.exports = {
-    pages: require("./pages")
+    pages: require("./pages"),
+    users: require("./users")
 };
