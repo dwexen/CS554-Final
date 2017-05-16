@@ -16,11 +16,14 @@ var session      = require('express-session');
 
 var configDB = require('./config/database.js');
 
+const static = express.static(__dirname + '/public');
+
 // configuration ===============================================================
 mongoose.connect('mongodb://localhost/cs554-final'); // connect to our database
 
 require('./config/passport')(passport); // pass passport for configuration
 
+app.use("/public", static);
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
