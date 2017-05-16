@@ -9,6 +9,15 @@ body, html {
   font-family: "Varela Round"; 
 }
 
+.navbar-brand {
+    color: white;
+    font-size: 25px; 
+}
+
+.navbar-right > * {
+    font-size: 25px; 
+}
+
 .title {
   font-size: 30px;
   margin: 10px 0px; 

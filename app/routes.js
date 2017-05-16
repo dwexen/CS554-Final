@@ -8,14 +8,29 @@ module.exports = function(app, passport) {
     var pages = data.pages;
     const sampleData = require("../sampleData.json");
 
+    function ensureAuthenticated(req, res, next) {
+        if (req.isAuthenticated()) { return next(); }
+        console.log('not authenticated');
+        res.redirect('/login')
+    }
+
 // normal routes ===============================================================
+
+    //prevent user from visiting feed, profile, and social media authentication pages if not logged in
+    app.all('*', function(req,res,next){
+        console.log("req.params is ", req.params);
+        if (req.params[0] === '/' || req.params[0] === '/login' || req.params[0] === '/signup' || req.params[0] === '/logout')
+            next();
+        else
+            ensureAuthenticated(req,res,next);  
+    });
 
     // show the home page (will also have our login links)
     app.get('/', function(req, res) {
         res.render('index.ejs');
     });
 
-    app.get('/home', function(req, res) {
+    app.get('/feed', function(req, res) {
         pages.getAllPages().then((pagesList) => {
             res.render('home.ejs', {
                 pages: pagesList
