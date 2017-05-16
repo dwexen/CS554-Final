@@ -13,6 +13,9 @@ TRAINING_DATA_PATH = "data/dataset-fb-valence-arousal-anon.csv"
 training_data = [ line[0] for line in csv.reader(TRAINING_DATA_PATH) ]
 
 class UserPostListener(RedisListener):
+  """
+  Extends the RedisListener base class and 
+  """
 
   def __init__(self, stem=True, verbosity=0):
     RedisListener.__init__(self, USER_POST_CHANNEL)
@@ -63,5 +66,5 @@ class UserPostListener(RedisListener):
       self._users.update({ "_id": user["_id"] }, user)
       if self._verbosity >= 1:
         print("User:", message["user"])
-        print("Post:", message["post"])
+        print("Post:", message["posts"])
 
