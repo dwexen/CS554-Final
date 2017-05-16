@@ -32,12 +32,14 @@ let exportMethods = {
 			});
         });
     },
-    getPagesRelatedToInterests(user)
+    getPagesRelatedToInterests(user, relevancy=1)
     {
         return page().then((pageCol) => {
-            var userInterests = user.interests;
-            return pageCol.find({topics: {$in: userInterests}}).toArray();
-        })
+            var userInterests = user.interests.map(
+              (interest) => interest.stemmed_name);
+            let results = pageCol.find({stemmed_topics: {$in: userInterests}}).toArray();
+            return results;
+        });
     }
 }
 
