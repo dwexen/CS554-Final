@@ -9,21 +9,22 @@
         p {
             word-wrap: break-word;
         }
+
     </style>
 <body>
     <nav role="navigation" class="navbar navbar-inverse">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+                <span style="font-size: 25px; color: #a9a9a9; border-style: none;" href="/profile"><i class="fa fa-user-circle"></i></a>
             </button>
             <a href="/feed" class="navbar-brand">The_.Web_By-You<small>.io</small></a>
         </div>
         <!-- Collection of nav links and other content for toggling -->
         <div id="navbarCollapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/feed">Feed</a></li>
+            </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/profile"><i class="fa fa-user-circle"></i></a></li>
             </ul>
@@ -47,13 +48,14 @@
                     <p>
                         <strong>id</strong>: <%= user._id %><br>
                         <strong>email</strong>: <%= user.local.email %><br>
-                        <strong>password</strong>: <%= user.local.password %>
                     </p>
-                    
-                    <a href="/unlink/local" class="btn btn-default">Unlink</a>
-                <% } else { %>
-                    <a href="/connect/local" class="btn btn-default">Connect Local</a>
-                <% } %>
+
+                    <div class="btn-container">
+                        <a href="/unlink/local" class="btn btn-default">Unlink</a>
+                    <% } else { %>
+                        <a href="/connect/local" class="btn btn-default">Connect Local</a>
+                    <% } %>
+                    </div>
 
             </div>
         </div>
@@ -97,9 +99,6 @@
                     </p>
 
                     <a href="/unlink/twitter" class="btn btn-info">Unlink</a>
-                    <form action="/analyze" method="get">
-                        <button type="submit"  class="btn btn-warning btn-lg">Analyze</button>
-                    </form>
                 <% } else { %>
                     <a href="/connect/twitter" class="btn btn-info">Connect Twitter</a>
                 <% } %>
@@ -108,6 +107,11 @@
         </div>
 
     </div>
+     <% if (user.twitter.token) { %>
+        <form action="/analyze" method="get" style="display: inline">
+            <button type="submit" style="float:right; padding: 15px;" class="btn btn-warning btn-lg">Analyze</button>
+        </form>
+     <% } %>
 
     
 

@@ -11,7 +11,6 @@ module.exports = function(app, passport) {
 
     const data = require("../data");
     var pages = data.pages;
-    const sampleData = require("../sampleData.json");
 
 // normal routes ===============================================================
 
