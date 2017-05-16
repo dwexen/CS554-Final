@@ -11,33 +11,16 @@ module.exports = function(app, passport) {
 
     const data = require("../data");
     var pages = data.pages;
-    const sampleData = require("../sampleData.json");
-
-    function ensureAuthenticated(req, res, next) {
-        if (req.isAuthenticated()) { return next(); }
-        console.log('not authenticated');
-        res.redirect('/login')
-    };
 
 // normal routes ===============================================================
-
-    //prevent user from visiting feed, profile, and social media authentication pages if not logged in
-    app.all('*', function(req,res,next){
-        console.log("req.params is ", req.params);
-        if (req.params[0] === '/' || req.params[0] === '/login' || req.params[0] === '/signup' || req.params[0] === '/logout')
-            next();
-        else
-            ensureAuthenticated(req,res,next);  
-    });
 
     // show the home page (will also have our login links)
     app.get('/', function(req, res) {
         res.render('index.ejs');
     });
 
-    app.get('/feed', function(req, res) {
+    app.get('/feed', isLoggedIn, function(req, res) {
         pages.getPagesRelatedToInterests(req.user).then((pagesList) => {
-            //console.log(pagesList);
             res.render('home.ejs', {
                 pages: pagesList
             });
@@ -156,11 +139,14 @@ module.exports = function(app, passport) {
                 successRedirect : '/profile',
                 failureRedirect : '/'
             }));
+
+        // twitter --------------------------------
+        
         app.get('/analyze', publisher.publishTweets, function(req, res){
             res.redirect('/profile');
         });
 
-    // twitter --------------------------------
+    
 
         // send to twitter to do the authentication
         app.get('/connect/twitter', passport.authorize('twitter', { scope : 'email' }));
@@ -168,19 +154,6 @@ module.exports = function(app, passport) {
         // handle the callback after twitter has authorized the user
         app.get('/connect/twitter/callback',
             passport.authorize('twitter', {
-                successRedirect : '/profile',
-                failureRedirect : '/'
-            }));
-
-
-    // google ---------------------------------
-
-        // send to google to do the authentication
-        app.get('/connect/google', passport.authorize('google', { scope : ['profile', 'email'] }));
-
-        // the callback after google has authorized the user
-        app.get('/connect/google/callback',
-            passport.authorize('google', {
                 successRedirect : '/profile',
                 failureRedirect : '/'
             }));
@@ -215,15 +188,6 @@ module.exports = function(app, passport) {
     app.get('/unlink/twitter', isLoggedIn, function(req, res) {
         var user           = req.user;
         user.twitter.token = undefined;
-        user.save(function(err) {
-            res.redirect('/profile');
-        });
-    });
-
-    // google ---------------------------------
-    app.get('/unlink/google', isLoggedIn, function(req, res) {
-        var user          = req.user;
-        user.google.token = undefined;
         user.save(function(err) {
             res.redirect('/profile');
         });
