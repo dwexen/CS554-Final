@@ -16,17 +16,17 @@ module.exports = function(app, passport) {
     });
 
     app.get('/home', function(req, res) {
-        // pages.getAllPages().then((pagesList) => {
-        //     res.render('home.ejs', {
-        //         pages: pagesList
-        //     });
-        // }).catch(() => {
-        //     // Something went wrong with the server!
-        //     res.sendStatus(500);
-        // });
-        res.render('home.ejs', {
-            pages: sampleData
+        pages.getAllPages().then((pagesList) => {
+            res.render('home.ejs', {
+                pages: pagesList
+            });
+        }).catch(() => {
+            // Something went wrong with the server!
+            res.sendStatus(500);
         });
+        // res.render('home.ejs', {
+        //     pages: sampleData
+        // });
     });
 
     // PROFILE SECTION =========================
