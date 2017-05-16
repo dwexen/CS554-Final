@@ -17,7 +17,7 @@ module.exports = function(app, passport) {
         if (req.isAuthenticated()) { return next(); }
         console.log('not authenticated');
         res.redirect('/login')
-    }
+    };
 
 // normal routes ===============================================================
 
