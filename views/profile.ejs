@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">    <link rel="stylesheet" href="/public/css/main.css" typetype="text/css">
     <link rel="stylesheet" href="/public/css/styles-from-sass.min.css">
+    <style>
+        p {
+            word-wrap: break-word;
+        }
+    </style>
 <body>
     <nav role="navigation" class="navbar navbar-inverse">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -39,7 +44,7 @@
                 <h3><span class="fa fa-user"></span> Local</h3>
 
                 <% if (user.local.email) { %>
-                    <p style="word-wrap: break-word;">
+                    <p>
                         <strong>id</strong>: <%= user._id %><br>
                         <strong>email</strong>: <%= user.local.email %><br>
                         <strong>password</strong>: <%= user.local.password %>

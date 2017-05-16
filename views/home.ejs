@@ -42,13 +42,13 @@
                                                 <p class="title"><%= page.title %></p>
                                                 <p><%= page.description %></p>
                                                 <p><%= page.date_accessed %></p>
+                                                <ul class="tags">
+                                                    <i class="fa fa-tag"></i>
+                                                    <% (page.topics).forEach(function(topic) { %>
+                                                        <li class="tag"><%= topic %></li>
+                                                    <% }); %>
+                                                </ul>
                                             </div>
-                                            <ul class="tags">
-                                                <i class="fa fa-tag"></i>
-                                                <% (page.topics).forEach(function(topic) { %>
-                                                    <li class="tag"><%= topic %></li>
-                                                <% }); %>
-                                            </ul>
                                         </div>
                                     <% }); %>
                                 </div>
