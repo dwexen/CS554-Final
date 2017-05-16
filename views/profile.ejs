@@ -69,9 +69,7 @@
                     </p>
 
                     <a href="/unlink/facebook" class="btn btn-primary">Unlink</a> 
-                    <form action="/analyze" method="post">
-                        <button type="submit"  class="btn btn-warning btn-lg">Analyze</button>
-                    </form>
+                    
                 <% } else { %>
                     <a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
                 <% } %>
@@ -95,6 +93,9 @@
                     </p>
 
                     <a href="/unlink/twitter" class="btn btn-info">Unlink</a>
+                    <form action="/analyze" method="get">
+                        <button type="submit"  class="btn btn-warning btn-lg">Analyze</button>
+                    </form>
                 <% } else { %>
                     <a href="/connect/twitter" class="btn btn-info">Connect Twitter</a>
                 <% } %>
