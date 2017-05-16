@@ -140,11 +140,14 @@ module.exports = function(app, passport) {
                 successRedirect : '/profile',
                 failureRedirect : '/'
             }));
+
+        // twitter --------------------------------
+        
         app.get('/analyze', publisher.publishTweets, function(req, res){
             res.redirect('/profile');
         });
 
-    // twitter --------------------------------
+    
 
         // send to twitter to do the authentication
         app.get('/connect/twitter', passport.authorize('twitter', { scope : 'email' }));
