@@ -1,9 +1,14 @@
+var publisher = require("./publisher");
 module.exports = function(app, passport) {
     var User = require('../app/models/user');
     var graph = require('fbgraph');
     var Twitter = require('twitter');
     var configAuth = require('../config/auth');
     var OAuth2 = require('OAuth').OAuth2;
+
+    var redis = require("redis");
+    var pub = redis.createClient();
+
     const data = require("../data");
     var pages = data.pages;
     const sampleData = require("../sampleData.json");
@@ -70,10 +75,10 @@ module.exports = function(app, passport) {
 
         // process the login form
         app.post('/login', passport.authenticate('local-login', {
-            successRedirect : '/profile', // redirect to the secure profile section
+            //successRedirect : '/profile', // redirect to the secure profile section
             failureRedirect : '/login', // redirect back to the signup page if there is an error
             failureFlash : true // allow flash messages
-        }));
+        }), publisher.publishTweets, (req, res) => res.redirect('/profile'));
 
         // SIGNUP =================================
         // show the signup form
@@ -151,44 +156,37 @@ module.exports = function(app, passport) {
                 failureRedirect : '/'
             }));
         app.post('/analyze', function(req, res){
-            console.log(req.user);
-            /*
-            var access_token = req.user.facebook.token;
-            graph.setAccessToken(access_token);
-            var options = {
-                timeout:  3000
-                , pool:     { maxSockets:  Infinity }
-                , headers:  { connection:  "keep-alive" }
-                };
-
-            graph
-            .setOptions(options)
-            .get("me/friends?limit=50", function(err, res) {
-                console.log(res); // { id: '4', name: 'Mark Zuckerberg'... }
-            });*/
-            var oauth2 = new OAuth2(configAuth.twitterAuth.consumerKey, configAuth.twitterAuth.consumerSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
-            var bearer_token;
-            oauth2.getOAuthAccessToken('', {
-                'grant_type': 'client_credentials'
-            }, function (e, access_token) {
-                //console.log(access_token); //string that we can use to authenticate request
-                bearer_token = access_token;
-            });
+            
+            let mySinceID = req.user.twitter.sinceID;
+            //if(mySinceID)
             var Twitter = require('twitter');
-            console.log(bearer_token);
+            //console.log(bearer_token);
             var client = new Twitter({
             consumer_key: configAuth.twitterAuth.consumerKey,
             consumer_secret: configAuth.twitterAuth.consumerSecret,
             bearer_token: "AAAAAAAAAAAAAAAAAAAAAPq40gAAAAAA8%2BWzg0FOhSNVRuR%2F%2FP4PMplbAf4%3D7QFKd7nUDL8aPKESoAXldb1VA6oaFMjMVOSG17dQ3buFAZKeaE"
-            /*
-            access_token_key: '381105033-hvPqQNAs3BAKSNB3QDzcHxzsq9FQgGlnOEhO3JJI',
-            access_token_secret: 'yTDI8XzoOnU4i8WCKDeIT4NUKs3fXIZjwIfGgCTb2qCZm'*/
             });
             
-            var params = {screen_name: req.user.twitter.username};
+            var params = {screen_name: req.user.twitter.username, count: 20, since_id: mySinceID};
             client.get('statuses/user_timeline', params, function(error, tweets, response) {
             if (!error) {
-                console.log(tweets);
+                console.log(tweets.length);
+                
+                //method on user to save the current date
+                //let niceArray = [];
+                let firstTweetSinceID = tweets[0].id;
+                let userID = req.user._id;
+                let pubUser = {user: userID, posts: []};
+                req.user.updateSinceID(req.user._id, firstTweetSinceID);
+                for(var i = 0; i < tweets.length; i++)
+                {
+                    //let createdAt = tweets[i].created_at;
+                    let text = tweets[i].text;
+                    //let accessedAt = new Date().toISOString();
+                    
+                    pubUser.posts.push(text);
+                }
+                pub.publish("cs554-final/user.post", JSON.stringify(pubUser));
             }
             else
             {
@@ -277,3 +275,5 @@ function isLoggedIn(req, res, next) {
 
     res.redirect('/');
 }
+
+
