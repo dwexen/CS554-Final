@@ -31,6 +31,7 @@ var userSchema = mongoose.Schema({
     interests: [
     {
       name: String,     // something the user is interested in, like 'python'
+      stemmed_name: String,  // all the meaning without the suffixes ;)
       neu: Number,      // within [0, 1]
       pos: Number,      // within [0, 1]
       neg: Number       // within [0, 1]

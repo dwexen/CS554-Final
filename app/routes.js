@@ -36,7 +36,8 @@ module.exports = function(app, passport) {
     });
 
     app.get('/feed', function(req, res) {
-        pages.getAllPages().then((pagesList) => {
+        pages.getPagesRelatedToInterests(req.user).then((pagesList) => {
+            //console.log(pagesList);
             res.render('home.ejs', {
                 pages: pagesList
             });

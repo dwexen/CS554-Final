@@ -34,19 +34,20 @@ class TextAnalyzer:
 
   def __init__(self, training_docs,
                n_topics=3, retrain_after=10, training_limit=None,
-               verbosity=0, max_df=0.01, ngram_range=(1, 1)):
+               verbosity=0, max_df=1.00, ngram_range=(1, 1)):
     self._training_limit = training_limit
     self._retrain_after = retrain_after
     self._training_docs = training_docs
     self._untrained_docs = []
     self._sid = SentimentIntensityAnalyzer()
 
-    #self._vectorizer = TfidfVectorizer(stop_words  = "english",
-    #                                   max_df      = max_df,
-    #                                   ngram_range = ngram_range)
-    self._vectorizer = CountVectorizer(stop_words  = "english")
+    self._vectorizer = TfidfVectorizer(stop_words  = "english",
+                                       max_df      = max_df,
+                                       min_df      = 0,
+                                       ngram_range = ngram_range)
+    #self._vectorizer = CountVectorizer(stop_words  = "english")
 
-    #self._vectorizer.fit(training_docs[training_limit:])
+    self._vectorizer.fit(training_docs[training_limit:])
     self._verbosity = verbosity
     self.n_topics_ = n_topics
 

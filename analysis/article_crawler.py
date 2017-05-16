@@ -16,7 +16,7 @@ class ArticleCrawler(WebCrawler):
     self._mongo_client = MongoClient("localhost", 27017)
     self._pages = self._mongo_client["cs554-final"]["pages"]
     self._analyzer = TextAnalyzer(fetch_20newsgroups(subset="train").data,
-                                  n_topics = 30, verbosity=0)
+                                  n_topics = 5, verbosity=0)
     self._verbosity = verbosity
 
     if stem:
