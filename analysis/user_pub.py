@@ -17,5 +17,5 @@ matched_users = users.find({ "name": sys.argv[1] })
 
 for user in matched_users:
   data = { "user": str(user["_id"]),
-           "post": sys.argv[2] }
+           "posts": [sys.argv[2]] }
   queue.publish(USER_POST_CHANNEL, json.dumps(data))

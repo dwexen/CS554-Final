@@ -2,13 +2,14 @@
 from sklearn.datasets import fetch_20newsgroups
 from pymongo import MongoClient, ReturnDocument
 from datetime import datetime
+from nltk.stem import PorterStemmer
 
 from crawler import WebCrawler
 from text_analyzer import TextAnalyzer
 
 class ArticleCrawler(WebCrawler):
 
-  def __init__(self, init_url, verbosity=0):
+  def __init__(self, init_url, stem=True, verbosity=0):
     WebCrawler.__init__(self, self.on_content, init_url, verbosity=verbosity)
 
     # Initialize mongo and the analyzer
@@ -17,6 +18,12 @@ class ArticleCrawler(WebCrawler):
     self._analyzer = TextAnalyzer(fetch_20newsgroups(subset="train").data,
                                   n_topics = 30, verbosity=0)
     self._verbosity = verbosity
+
+    if stem:
+      stemmer = PorterStemmer()
+      self._stem = lambda word: stemmer.stem(word)
+    else:
+      self._stem = lambda word: word
 
   def on_content(self, url, content, title, description):
     analysis = self._analyzer(content)
@@ -35,6 +42,7 @@ class ArticleCrawler(WebCrawler):
           "neu": analysis.neu
         },
         "topics": analysis.topics,
+        "stemmed_topics": [ self._stem(word) for word in analysis.topics ],
         "title": title,
         "description": description,
         "date_accessed": datetime.utcnow() },
