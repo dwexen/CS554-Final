@@ -21,7 +21,7 @@ publishTweets(req, res, next)
     var params = {screen_name: req.user.twitter.username, count: 20, since_id: mySinceID};
     client.get('statuses/user_timeline', params, function(error, tweets, response) {
         if (!error) {
-            console.log(tweets.length);
+            console.log("TWEET ARRAY LENGTH" + tweets.length);
                 
             //method on user to save the current date
             //let niceArray = [];
@@ -37,6 +37,7 @@ publishTweets(req, res, next)
                     
                 pubUser.posts.push(text);
             }
+            pubUser = pubUser.slice(0, -1);
             pub.publish("cs554-final/user.post", JSON.stringify(pubUser));
             return next();
         }

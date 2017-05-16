@@ -31,6 +31,13 @@ let exportMethods = {
 				return this.getPageById(newId);
 			});
         });
+    },
+    getPagesRelatedToInterests(user)
+    {
+        return page().then((pageCol) => {
+            var userInterests = user.interests;
+            return pageCol.find({topics: {$in: userInterests}}).toArray();
+        })
     }
 }
 
