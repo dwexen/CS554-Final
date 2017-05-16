@@ -4,11 +4,29 @@ module.exports = function(app, passport) {
     var Twitter = require('twitter');
     var configAuth = require('../config/auth');
     var OAuth2 = require('OAuth').OAuth2;
+    const data = require("../data");
+    var pages = data.pages;
+    const sampleData = require("../sampleData.json");
+
 // normal routes ===============================================================
 
     // show the home page (will also have our login links)
     app.get('/', function(req, res) {
         res.render('index.ejs');
+    });
+
+    app.get('/home', function(req, res) {
+        // pages.getAllPages().then((pagesList) => {
+        //     res.render('home.ejs', {
+        //         pages: pagesList
+        //     });
+        // }).catch(() => {
+        //     // Something went wrong with the server!
+        //     res.sendStatus(500);
+        // });
+        res.render('home.ejs', {
+            pages: sampleData
+        });
     });
 
     // PROFILE SECTION =========================
