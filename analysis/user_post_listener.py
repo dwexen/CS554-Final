@@ -3,6 +3,7 @@ import csv
 from redis_listener import RedisListener
 from pymongo import MongoClient, ReturnDocument
 from bson.objectid import ObjectId
+from nltk.stem import PorterStemmer
 
 from text_analyzer import TextAnalyzer
 
@@ -12,8 +13,11 @@ TRAINING_DATA_PATH = "data/dataset-fb-valence-arousal-anon.csv"
 training_data = [ line[0] for line in csv.reader(TRAINING_DATA_PATH) ]
 
 class UserPostListener(RedisListener):
+  """
+  Extends the RedisListener base class and 
+  """
 
-  def __init__(self, verbosity=0):
+  def __init__(self, stem=True, verbosity=0):
     RedisListener.__init__(self, USER_POST_CHANNEL)
 
     # Initialize mongo and the analyzer
@@ -23,27 +27,44 @@ class UserPostListener(RedisListener):
                                   verbosity=verbosity)
     self._verbosity = verbosity
 
+    if stem:
+      stemmer = PorterStemmer()
+      self._stem = lambda word: stemmer.stem(word)
+    else:
+      self._stem = lambda word: word
+
   def on_message(self, message):
-    analysis = self._analyzer(message["post"])
+    analyses = [ self._analyzer(post) for post in message["posts"] ]
+    user = self._users.find_one({ "_id": ObjectId(message["user"]) })
 
-    # If the analysis comes back with no topics, we can safely discard this
-    # post...it doesn't tell us anything about the user
-    if len(analysis.topics) <= 0:
-      return
+    for analysis in analyses:
+      # If the analysis comes back with no topics, we can safely discard this
+      # post...it doesn't tell us anything about the user
+      if len(analysis.topics) <= 0:
+        return
 
-    result = self._users.find_one_and_update(
-      { "_id": ObjectId(message["user"]) },
-      { "$push": {
-        "interests": { "$each": [{
-          "name": topic,
-          "pos": analysis.pos,
-          "neg": analysis.neg,
-          "neu": analysis.neu
-        } for topic in analysis.topics]}}
-      },
-      return_document = ReturnDocument.AFTER
-    )
-    if self._verbosity >= 1:
-      print("User:", message["user"])
-      print("Post:", message["post"])
+      if "interests" not in user:
+        user["interests"] = []
+
+      for topic in analysis.topics:
+        try:
+          interest = next(i for i in user["interests"]
+                          if i["stemmed_name"] == self._stem(topic))
+        except:
+          interest = { "name": topic,
+                       "stemmed_name": self._stem(topic),
+                       "pos": 0,
+                       "neg": 0,
+                       "neu": 0,
+                       "count": 0 }
+          user["interests"].append(interest)
+        interest["pos"] += analysis.pos
+        interest["neg"] += analysis.neg
+        interest["neu"] += analysis.neu
+        interest["count"] = interest["count"] + 1
+
+      self._users.update({ "_id": user["_id"] }, user)
+      if self._verbosity >= 1:
+        print("User:", message["user"])
+        print("Post:", message["posts"])
 

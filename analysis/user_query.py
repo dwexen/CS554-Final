@@ -23,7 +23,7 @@ result = users.aggregate([
 for user in result:
   print("User", user["_id"], "feels:")
   interests = [ interest["name"] for interest in user["interests"] ]
-  relevant_articles = pages.find({ "topics": { "$in": interests }})
+  relevant_articles = pages.find({ "stemmed_topics": { "$in": interests }})
 
   for item in user["interests"]:
     if item["pos"] >= item["neg"]:
